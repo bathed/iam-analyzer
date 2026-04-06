@@ -40,7 +40,6 @@ func generateHTML(result analyzer.AnalysisResult) string {
 			</tr>`, action, danger))
 	}
 
-	// Строим строки используемых прав
 	var usedRows strings.Builder
 	for _, action := range result.UsedActions {
 		lastUsed := "never"
