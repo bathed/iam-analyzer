@@ -19,7 +19,7 @@ var (
 	flagDays   int
 	flagOutput string
 	flagRegion string
-	flagHTML string
+	flagHTML   string
 )
 
 func main() {
@@ -28,12 +28,12 @@ func main() {
 
 	rootCmd := &cobra.Command{
 		Use:   "iam-analyzer",
-		Short: "Анализатор IAM прав — находит лишние permissions в AWS",
+		Short: "IAM permissions analyzer — finds unused permissions in AWS",
 	}
 
 	analyzeCmd := &cobra.Command{
 		Use:   "analyze",
-		Short: "Анализировать конкретную IAM роль",
+		Short: "Analyze a specific IAM role",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runAnalyze(logger)
 		},
@@ -41,12 +41,12 @@ func main() {
 
 	listCmd := &cobra.Command{
 		Use:   "list-roles",
-		Short: "Показать все IAM роли в аккаунте",
+		Short: "List all IAM roles in the account",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runListRoles(logger)
 		},
 	}
-	
+
 	analyzeCmd.Flags().StringVar(&flagRole, "role", "", "IAM role name to analyze")
 	analyzeCmd.Flags().IntVar(&flagDays, "days", 30, "Number of days to analyze CloudTrail logs")
 	analyzeCmd.Flags().StringVar(&flagOutput, "output", "", "Path to save JSON report")
@@ -70,7 +70,7 @@ func runAnalyze(logger *zap.Logger) error {
 		config.WithRegion(flagRegion),
 	)
 	if err != nil {
-		return fmt.Errorf("не удалось подключиться к AWS: %w", err)
+		return fmt.Errorf("failed to connect to AWS: %w", err)
 	}
 
 	iamClient := awsclient.NewIAMClient(cfg, logger)
@@ -78,19 +78,19 @@ func runAnalyze(logger *zap.Logger) error {
 	analyzerEngine := analyzer.New()
 	printer := report.New()
 
-	fmt.Printf("🔍 Получаю информацию о роли '%s'...\n", flagRole)
+	fmt.Printf("Fetching role '%s'...\n", flagRole)
 	role, err := iamClient.GetRole(ctx, flagRole)
 	if err != nil {
-		return fmt.Errorf("не удалось получить роль: %w", err)
+		return fmt.Errorf("failed to get role: %w", err)
 	}
 
-	fmt.Printf("📋 Читаю CloudTrail логи за %d дней...\n", flagDays)
+	fmt.Printf("Reading CloudTrail logs for the last %d days...\n", flagDays)
 	events, err := cloudTrailClient.GetEventsForRole(ctx, role.ARN, flagDays)
 	if err != nil {
-		return fmt.Errorf("не удалось получить события: %w", err)
+		return fmt.Errorf("failed to get events: %w", err)
 	}
 
-	fmt.Println(" Анализирую...")
+	fmt.Println("Analyzing...")
 	result := analyzerEngine.Analyze(*role, events)
 
 	printer.PrintToTerminal(result)
@@ -115,7 +115,7 @@ func runListRoles(logger *zap.Logger) error {
 		config.WithRegion(flagRegion),
 	)
 	if err != nil {
-		return fmt.Errorf("не удалось подключиться к AWS: %w", err)
+		return fmt.Errorf("failed to connect to AWS: %w", err)
 	}
 
 	iamClient := awsclient.NewIAMClient(cfg, logger)
@@ -125,11 +125,11 @@ func runListRoles(logger *zap.Logger) error {
 		return err
 	}
 
-	fmt.Println("📋 Все IAM роли в аккаунте:")
+	fmt.Println("All IAM roles in the account:")
 	for i, role := range roles {
 		fmt.Printf("  %d. %s\n", i+1, role)
 	}
-	fmt.Printf("\nВсего: %d ролей\n", len(roles))
+	fmt.Printf("\nTotal: %d roles\n", len(roles))
 
 	return nil
 }

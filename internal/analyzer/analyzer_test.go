@@ -29,10 +29,10 @@ func TestAnalyze_FindsUnusedActions(t *testing.T) {
 	}
 	result := a.Analyze(role, events)
 	if len(result.UsedActions) != 2 {
-		t.Errorf("ожидали 2 используемых права, получили %d", len(result.UsedActions))
+		t.Errorf("expected 2 used actions, got %d", len(result.UsedActions))
 	}
 	if len(result.UnusedActions) != 1 {
-		t.Errorf("ожидали 1 неиспользуемое право, получили %d", len(result.UnusedActions))
+		t.Errorf("expected 1 unused action, got %d", len(result.UnusedActions))
 	}
 }
 
@@ -52,6 +52,6 @@ func TestRiskScore_WildcardIsHighRisk(t *testing.T) {
 	}
 	result := a.Analyze(role, []CloudTrailEvent{})
 	if result.RiskScore < 70 {
-		t.Errorf("ожидали высокий риск, получили %d", result.RiskScore)
+		t.Errorf("expected high risk score, got %d", result.RiskScore)
 	}
 }
