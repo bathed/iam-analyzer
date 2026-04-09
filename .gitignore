@@ -1,0 +1,21 @@
+# Binaries
+*.exe
+*.exe~
+
+# Go build
+/dist/
+
+# Reports
+report.html
+report.json
+
+# AWS credentials
+.aws/
+*.csv
+trust-policy.json
+
+# VS Code
+.vscode/
+
+# Claude
+.claude/
